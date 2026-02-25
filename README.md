@@ -19,18 +19,18 @@ CRISP shares several core mechanisms with its predecessor, ProSt:
 
 The **key innovation** in CRISP lies in its image utilization and permutation strategy:
 
-*   **Optimized Image Usage:** ProSt requires one image per wire, leading to 61 images for a 17-gate obfuscated circuit. **CRISP requires only one image per gate**, reducing the image count to 17 for the same circuit (a 3.6x reduction). This significantly lowers storage and transmission overhead.
+*   **Optimized Image Usage:** ProSt requires one image per wire, leading to 61 images for a 17-gate obfuscated circuit. **CRISP requires only one image per gate**, reducing the image count to 34 for the same circuit (a 1.8x reduction). This significantly lowers storage and transmission overhead.
 *   **Enhanced Circuit Privacy with Symmetric Permutations:**
     *   Each Fredkin gate embeds its three logical inputs (control `c`, input `x`, input `y`) into the RGB channels of a *single image* at a secret pixel.
-    *   This embedding uses a secret input permutation $ \pi_{in} \in S_3 $.
-    *   The cloud (Carol) applies the Fredkin gate pixel-wise across the entire image using the public $ (\pi_{in}, \pi_{out}) $ for that specific gate.
-    *   Bob reads the three output bits from the same secret pixel using the corresponding $ \pi_{out} $.
-    *   Both $ \pi_{in} $ and $ \pi_{out} $ are sampled **independently and uniformly at random from $ S_3 $** for *every single gate*.
+    *   This embedding uses a secret input permutation $\pi_{in} \in S_3$.
+    *   The cloud (Carol) applies the Fredkin gate pixel-wise across the entire image using the public $(\pi_{in}, \pi_{out})$ for that specific gate.
+    *   Bob reads the three output bits from the same secret pixel using the corresponding $\pi_{out}$.
+    *   Both $\pi_{in} $ and $ \pi_{out}$ are sampled **independently and uniformly at random from $S_3$** for *every single gate*.
     *   Neither permutation is anchored to any user-chosen channel. This "fully symmetric design" ensures that the channel-to-role assignment is entirely fresh at both the input and output sides of every gate, maximizing circuit privacy.
 
 ## Security Considerations (Adapted from ProSt Theorem 1)
 
-The adversary's advantage against CRISP is $ \Theta(1/(n-1)!) $, where $ n = h \times w $ represents the total number of possible pixel positions (height × width). In contrast, ProSt used $ n = h \times w \times 3 $ for pixel-channel positions.
+The adversary's advantage against CRISP is $\Theta(1/n!)$, where $n = h \times w$ represents the total number of possible pixel positions (height × width). In contrast, ProSt used $n = h \times w \times 3$ for pixel-channel positions.
 
 While CRISP's position space is 3 times smaller, it compensates by:
 1.  Using 3.6 times fewer images overall.
@@ -41,12 +41,12 @@ Both schemes offer cryptographically negligible adversary advantages.
 ## Technical Details
 
 ### Fredkin Gate
-The core logic gate used is the Fredkin gate: $ F(c, x, y) \rightarrow (c, y \text{ if } c=1 \text{ else } x, x \text{ if } c=1 \text{ else } y) $. It passes the control bit $c$ through unchanged and swaps $x$ and $y$ if $c$ is 1.
+The core logic gate used is the Fredkin gate: $F(c, x, y) \rightarrow (c, y \text{ if } c=1 \text{ else } x, x \text{ if } c=1 \text{ else } y)$. It passes the control bit $c$ through unchanged and swaps $x$ and $y$ if $c$ is 1.
 
 ### Steganography Primitives
-*   `emb(image, c_bit, x_bit, y_bit, row, col, pi_in)`: Alice's function to embed three logical bits into the LSBs of a single pixel's RGB channels according to $ \pi_{in} $. Returns a new stego image.
-*   `comp(stego, output_cover, pi_in, pi_out)`: Carol's (Eve's) function to apply the Fredkin operation pixel-wise across the entire `stego` image. Inputs are read using $ \pi_{in} $ and outputs are written into an independent `output_cover` image using $ \pi_{out} $.
-*   `ext(image, row, col, pi_out)`: Bob's function to extract the three logical output bits from the secret pixel of the processed image according to $ \pi_{out} $.
+*   `emb(image, c_bit, x_bit, y_bit, row, col, pi_in)`: Alice's function to embed three logical bits into the LSBs of a single pixel's RGB channels according to $\pi_{in}$. Returns a new stego image.
+*   `comp(stego, output_cover, pi_in, pi_out)`: Carol's (Eve's) function to apply the Fredkin operation pixel-wise across the entire `stego` image. Inputs are read using $\pi_{in}$ and outputs are written into an independent `output_cover` image using $\pi_{out}$.
+*   `ext(image, row, col, pi_out)`: Bob's function to extract the three logical output bits from the secret pixel of the processed image according to $\pi_{out}$.
 
 ### Circuit Evaluation Flow
 1.  **Alice's Setup:**
@@ -59,7 +59,7 @@ The core logic gate used is the Fredkin gate: $ F(c, x, y) \rightarrow (c, y \te
     *   Parses the obfuscated circuit.
     *   Performs a randomized topological sort of the gates.
     *   Iterates through each gate in the randomized order:
-        *   Samples new, independent $ \pi_{in} $ and $ \pi_{out} $ for the current gate.
+        *   Samples new, independent $\pi_{in}$ and $\pi_{out}$ for the current gate.
         *   Uses `emb` to "virtually" embed input bits for the current gate into its assigned `input_cover` image (the actual embedding is part of the homomorphic operation for Eve).
         *   Uses `comp` to apply the Fredkin operation across the entire `input_cover` image, producing an `output_image` based on a fresh `output_cover`.
         *   Uses `ext` to extract the *logical* output bits from the `output_image` at the secret pixel.
@@ -89,14 +89,14 @@ sudo apt-get install python3-tk  # On Debian/Ubuntu
 
 ### Directory Structure
 The script expects a `cover` directory at the same level as the script for image inputs, or it will generate synthetic images.
-````
+
 .
 ├── crisp.py
 └── C:/cover/  # (Or any other path, default is C:/cover)
     ├── image01.png
     ├── image02.png
     └── ...
-```
+
 If `C:/cover` does not exist or does not contain enough images, the script will generate synthetic 128x128 RGB images. You need at least `2 * num_gates` images if you provide your own (one set for input covers, one for output covers).
 
 ### Running the Script
