@@ -5,7 +5,7 @@
 
 CRISP (Circuit-pRivate Single-Image Steganography with Permutations) is a Python implementation of a homomorphic steganography scheme designed for secure circuit evaluation in cloud environments. It builds upon the concepts introduced in ProSt, optimizing image usage and enhancing circuit privacy through the use of fully symmetric input and output permutations per gate.
 
-The core idea is to embed binary circuit inputs into a single pixel of an image (the *cover image*) by modifying the least significant bits (LSBs) of its RGB channels. A cloud server (Eve/Carol), without knowing the secret pixel location, can then perform homomorphic operations across the entire image. The result of the computation is encoded back into the LSBs of a *new, independent output cover image*. The authorized recipient (Bob) can then extract the circuit output from the secret pixel of this processed image.
+The core idea is to embed binary circuit inputs into a single pixel of an image (the *cover image*) by modifying the least significant bits (LSBs) of its RGB channels. A cloud server Carol, without knowing the secret pixel location, can then perform homomorphic operations across the entire image. The result of the computation is encoded back into the LSBs of a *new, independent output cover image*. The authorized recipient (Bob) can then extract the circuit output from the secret pixel of this processed image.
 
 ## Key Features & Differences from ProSt
 
@@ -45,7 +45,7 @@ The core logic gate used is the Fredkin gate: $F(c, x, y) \rightarrow (c, y \tex
 
 ### Steganography Primitives
 *   `emb(image, c_bit, x_bit, y_bit, row, col, pi_in)`: Alice's function to embed three logical bits into the LSBs of a single pixel's RGB channels according to $\pi_{in}$. Returns a new stego image.
-*   `comp(stego, output_cover, pi_in, pi_out)`: Carol's (Eve's) function to apply the Fredkin operation pixel-wise across the entire `stego` image. Inputs are read using $\pi_{in}$ and outputs are written into an independent `output_cover` image using $\pi_{out}$.
+*   `comp(stego, output_cover, pi_in, pi_out)`: Carol's (Carol's) function to apply the Fredkin operation pixel-wise across the entire `stego` image. Inputs are read using $\pi_{in}$ and outputs are written into an independent `output_cover` image using $\pi_{out}$.
 *   `ext(image, row, col, pi_out)`: Bob's function to extract the three logical output bits from the secret pixel of the processed image according to $\pi_{out}$.
 
 ### Circuit Evaluation Flow
@@ -55,12 +55,12 @@ The core logic gate used is the Fredkin gate: $F(c, x, y) \rightarrow (c, y \tex
     *   Loads/generates `n_gates` input cover images and `n_gates` independent output cover images.
     *   Prompts for a secret pixel position `(row, col)`.
     *   Prompts for initial input bits (A, B, C) and embeds them conceptually (log prints mirror ProSt).
-2.  **Eve's Computation (`Eve_compute_circuit`):**
+2.  **Carol's Computation (`Carol_compute_circuit`):**
     *   Parses the obfuscated circuit.
     *   Performs a randomized topological sort of the gates.
     *   Iterates through each gate in the randomized order:
         *   Samples new, independent $\pi_{in}$ and $\pi_{out}$ for the current gate.
-        *   Uses `emb` to "virtually" embed input bits for the current gate into its assigned `input_cover` image (the actual embedding is part of the homomorphic operation for Eve).
+        *   Uses `emb` to "virtually" embed input bits for the current gate into its assigned `input_cover` image (the actual embedding is part of the homomorphic operation for Carol).
         *   Uses `comp` to apply the Fredkin operation across the entire `input_cover` image, producing an `output_image` based on a fresh `output_cover`.
         *   Uses `ext` to extract the *logical* output bits from the `output_image` at the secret pixel.
         *   Stores these logical output bits for subsequent gates.
@@ -68,7 +68,7 @@ The core logic gate used is the Fredkin gate: $F(c, x, y) \rightarrow (c, y \tex
         *   Prints a Base64 representation of the processed images for console output (or saves them to disk if Base64 is not desired for every step).
     *   Returns the final computed wire values.
 3.  **Bob's Extraction:**
-    *   Receives the final output value from Eve (conceptually extracted from the final image).
+    *   Receives the final output value from Carol (conceptually extracted from the final image).
 
 ## Setup & Usage
 
@@ -112,7 +112,7 @@ If `C:/cover` does not exist or does not contain enough images, the script will 
     *   Finally, it will ask you to enter binary inputs (0 or 1) for `A`, `B`, and `C` for the example circuit.
 4.  **Output:**
     *   The console will display various logging messages, profiling information, and the final circuit output.
-    *   During Eve's computation, intermediate images (stego and output for each gate) will be saved to `C:/cover/processed/` (or `/tmp/crisp_display_*.png` if `C:/cover` doesn't exist).
+    *   During Carol's computation, intermediate images (stego and output for each gate) will be saved to `C:/cover/processed/` (or `/tmp/crisp_display_*.png` if `C:/cover` doesn't exist).
     *   Crucially, the console will also print **Base64 encoded strings** of the displayed images, making the image content part of the textual output stream. You can decode these Base64 strings externally to view the images.
 
 ### Circuit Specification
