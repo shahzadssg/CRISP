@@ -11,7 +11,7 @@ The core idea is to embed binary circuit inputs into a single pixel of an image 
 
 CRISP shares several core mechanisms with its predecessor, ProSt:
 
-*   **Circuit Specification:** Uses the same 14-gate Fredkin circuit structure.
+*   **Circuit Specification:** Uses the same 17-gate Fredkin circuit structure.
 *   **Obfuscation Pipeline:** Incorporates wire renaming and the addition of dummy ancillaries and gates to obscure the circuit structure.
 *   **Randomized Topological Sort:** Gates are executed in a topologically valid but randomized order to further hide computation flow.
 *   **Interactive Input:** Prompts the user for circuit input bits and the secret pixel position.
