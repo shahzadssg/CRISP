@@ -3,7 +3,7 @@
 
 ## Overview
 
-CRISP (Circuit-pRivate Single-Image Steganography with Permutations) is a Python implementation of a homomorphic steganography scheme designed for secure circuit evaluation in cloud environments. It builds upon the concepts introduced in ProSt, optimizing image usage and enhancing circuit privacy through the use of fully symmetric input and output permutations per gate.
+CRISP (**C**ircuit-p**R**ivate Single-**I**mage **S**teganography with **P**ermutations) is a Python implementation of a homomorphic steganography scheme designed for secure circuit evaluation in cloud environments. It builds upon the concepts introduced in ProSt, optimizing image usage and enhancing circuit privacy through the use of fully symmetric input and output permutations per gate.
 
 The core idea is to embed binary circuit inputs into a single pixel of an image (the *cover image*) by modifying the least significant bits (LSBs) of its RGB channels. A cloud server Carol, without knowing the secret pixel location, can then perform homomorphic operations across the entire image. The result of the computation is encoded back into the LSBs of a *new, independent output cover image*. The authorized recipient (Bob) can then extract the circuit output from the secret pixel of this processed image.
 
